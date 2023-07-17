@@ -2,6 +2,7 @@ import Head from 'next/head';
 import { Layout, Button, theme } from 'antd';
 import Link from 'next/link';
 import TopBar from '@/components/TopBar';
+import Title from '@/components/Title';
 
 const { Header, Content } = Layout;
 const { useToken } = theme;
@@ -20,7 +21,7 @@ export default function About() {
         <Header style={{ backgroundColor: token.colorAccent }}>
           <header style={{ backgroundColor: token.colorAccent }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <h1 style={{ color: token.colorTextInvert, margin: 0 }}>Study Oracle</h1>
+              <Title />
               <div style={{ marginLeft: 'auto', marginRight: 16 }}>
                 <Link href="/">
                   <div style={{ color: 'white' }}>Back</div>

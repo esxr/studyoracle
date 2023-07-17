@@ -1,0 +1,42 @@
+#!/bin/bash
+
+if [ ! -d .aws ]; then
+    mkdir .aws
+fi
+cp credentials .aws/credentials
+
+AWS_ACCESS_KEY_ID=$(cat .aws/credentials | grep AWS_ACCESS_KEY_ID | awk -F '=' '{print $2}' | awk '{$1=$1};1')
+AWS_SECRET_ACCESS_KEY=$(cat .aws/credentials | grep AWS_SECRET_ACCESS_KEY | awk -F '=' '{print $2}' | awk '{$1=$1};1')
+AWS_SESSION_TOKEN=$(cat .aws/credentials | grep AWS_SESSION_TOKEN | awk -F '=' '{print $2}' | awk '{$1=$1};1')
+
+# Ask, do you want to delete the the infrastructure? (y/N)
+# If yes, then run the aws-nuke command
+# If no, then exit
+# If anything else, then exit
+read -p "Do you want to REALLY delete the infrastructure or just see what you can delete? There is NO COMING BACK from this (y/N) " -n 1 -r
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+    echo "Deleting infrastructure..."
+    # Run the aws-nuke command
+    docker run \
+    --rm -it \
+    -v $PWD/nuke-config.yml:/home/aws-nuke/config.yml \
+    quay.io/rebuy/aws-nuke:v2.22.1 \
+    --config /home/aws-nuke/config.yml \
+    --access-key-id $AWS_ACCESS_KEY_ID \
+    --secret-access-key $AWS_SECRET_ACCESS_KEY \
+    --session-token $AWS_SESSION_TOKEN \
+    --no-dry-run
+else
+    echo "Deleting infrastructure..."
+    # Run the aws-nuke command
+    docker run \
+    --rm -it \
+    -v $PWD/nuke-config.yml:/home/aws-nuke/config.yml \
+    quay.io/rebuy/aws-nuke:v2.22.1 \
+    --config /home/aws-nuke/config.yml \
+    --access-key-id $AWS_ACCESS_KEY_ID \
+    --secret-access-key $AWS_SECRET_ACCESS_KEY \
+    --session-token $AWS_SESSION_TOKEN
+fi

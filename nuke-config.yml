@@ -1,0 +1,41 @@
+regions:
+- us-east-1
+
+account-blocklist:
+- "999999999999" # production
+
+resource-types:
+  targets:
+  # ECR
+  - ECRRepository
+  # ECS
+  - ECSCluster
+  - ECSService
+  - ECSTaskDefinition
+  # Load Balancers
+  - ELBv2
+  - ELBv2TargetGroup
+  # Autoscaling
+  - AutoScalingGroup
+  - AutoScalingPlansScalingPlan
+  # DB
+  - RDSInstance
+  # SQS
+  - SQSQueue
+  # Security Groups
+  # CloudWatch Logs
+  - CloudWatchAlarm
+  - CloudWatchLogsLogGroup
+  # Security Groups
+  - EC2SecurityGroup
+  
+
+accounts:
+  "523504186842": # default account
+    filters:
+        IAMUser:
+        - "admin"
+        IAMUserPolicyAttachment:
+        - "admin -> AdministratorAccess"
+        IAMUserAccessKey:
+        - "admin -> ASIAV3YQPPJH4P73BBV3"

@@ -1,0 +1,14 @@
+version: "3.9"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    volumes:
+      - ./server:/app/server
+    environment:
+      OPENAI_API_KEY: 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
+    ports:
+      - "8080:8080"

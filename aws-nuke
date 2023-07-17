@@ -1,0 +1,5 @@
+#!/bin/bash
+docker run \
+    --rm -it \
+    quay.io/rebuy/aws-nuke:v2.22.1 \
+    $1

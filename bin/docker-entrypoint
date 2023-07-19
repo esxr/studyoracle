@@ -11,7 +11,7 @@ fi
 
 # If the first argument is serve then run the default command
 if [ $# -eq 0 ] || [ "$1" = "serve" ]; then
-    # python3 bin/wait_for_db.py
+    python3 bin/wait_for_db.py
 
-    exec /usr/local/bin/gunicorn --bind 0.0.0.0:8080 'server:create_app()'
+    exec /usr/local/bin/gunicorn --timeout 120 --bind 0.0.0.0:8080 'server:create_app()'
 fi

@@ -1,16 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import Head from 'next/head';
 import { Layout, theme } from 'antd';
 import TopBar from '../components/TopBar';
 import Sidebar from '../components/Sidebar';
 import ChatHistory from '../components/ChatHistory';
 import ChatInput from '../components/ChatInput';
+import GoogleAuth from '@/components/GoogleAuth';
 
 const { Header, Sider, Content } = Layout;
 const { useToken } = theme;
 
 export default function Home() {
   const { token } = useToken();
+  const router = useRouter();
 
   const [collapsed, setCollapsed] = useState(false);
   const [message, setMessage] = useState('');
@@ -18,6 +21,21 @@ export default function Home() {
   const [thinking, setThinking] = useState(false);
   const [fileList, setFileList] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [isSignedIn, setIsSignedIn] = useState(false);
+
+  useEffect(() => {
+    // Check if the user is already signed in
+
+    // Listen for sign-in state changes
+  }, []);
+
+  // reroute to login page if not signed in
+  useEffect(() => {
+    if (!isSignedIn) {
+      // Redirect to the sign-in page if not signed in
+      router.push('/login');
+    }
+  }, [isSignedIn, router]);
 
   const handleMessageChange = (event) => {
     setMessage(event.target.value);
@@ -105,6 +123,11 @@ export default function Home() {
       <Layout style={{ height: '100vh' }}>
         <Header style={{ backgroundColor: token.colorAccent }}>
           <TopBar />
+          {isSignedIn && (
+            <Link href="/login">
+              <a>Sign Out</a>
+            </Link>
+          )}
         </Header>
 
         <Layout style={{ height: 'calc(100% - 64px)' }}>

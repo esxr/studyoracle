@@ -17,7 +17,7 @@ export default function About() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <Layout style={{ height: '100%' }}>
+      <Layout style={{ height: '100%', overflow: 'scroll' }}>
         <Header style={{ backgroundColor: token.colorAccent }}>
           <header style={{ backgroundColor: token.colorAccent }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -35,34 +35,29 @@ export default function About() {
           <h2 style={{ color: token.colorText }}>About Study Oracle</h2>
           <br />
           <p style={{ color: token.colorText }}>
-            StudyOracle is a revolutionary service that enhances studying by using AI technology. Upload PDF files, ask questions, and get relevant answers from the PDFs. It&apos;s perfect for law, medical, and engineering students.
-
+            StudyOracle is here to revolutionalize the way you learn and excel!
+            <br /><br />
+            <li>Extracting data effortlessly from lengthy PDFs ⛏️</li>
+            <li>Cross-checking assignment solutions with books 📄</li>
+            <li>Harnessing AI to search your personal notes 📝</li>
+            <li>Using AI as a second brain 🧠</li>
             <br />
             <br />
             <hr />
             <br />
-            <h3>Some Usecases</h3>
-            - Upload legal documents and case studies. Ask questions about legal concepts or cases to quickly find relevant passages and get concise answers.
-            <br />- Upload medical textbooks and research papers. Ask medical queries to receive accurate responses, saving time in finding essential information for coursework or exams.
-            <br />- Upload engineering textbooks and manuals. Ask questions about formulas, theories, or problem-solving techniques for step-by-step explanations.
-
+            <h3>How to Use Study Oracle</h3><br />
+            <b>Step 1: </b><i>Upload PDFs:</i> Add study materials, such as textbooks or research papers.<br />
+            <b>Step 2: </b><i>Ask Questions:</i> Type clear and specific queries related to your study materials.<br />
+            <b>Step 3: </b><i>Retrieve Answers:</i> StudyOracle&apos;s AI bot scans the uploaded PDFs and provides accurate answers to your questions.<br />
             <br />
             <br />
             <hr />
             <br />
-            <h3>How to Use Study Oracle</h3>
-            - <b>Upload PDFs:</b> Add study materials, such as textbooks or research papers.
-            <br />- <b>Ask Questions:</b> Type clear and specific queries related to your study materials.
-            <br />- <b>Retrieve Answers:</b> StudyOracle&apos;s AI bot scans the uploaded PDFs and provides accurate answers to your questions.
-
-            <br />
-            <br />
-            <hr />
-            <br />
-            <h3>Additional Resources</h3>
+            <h3>Help in development</h3>
             <br /><b>Discord Community:</b> Join the <a style={{ color: "blue" }} href="https://discord.gg/TD6HfMaq3R">StudyOracle Discord community</a> for discussions, collaboration, and assistance (moderators wanted).
             <br /><b>Reddit Community:</b> Join the <a style={{ color: "blue" }} href="https://www.reddit.com/r/studyoracle/">StudyOracle Subreddit</a> (moderators wanted).
-            <br /><b>Collaborate:</b> Email us at <a style={{ color: "blue" }} href="mailto:info@studyoracle.com">info@studyoracle.com</a> with your ideas.
+            <br /><b>WhatsApp Group:</b> Join our <a style={{ color: "blue" }} href="https://chat.whatsapp.com/LBhukxklTQ6IgECB8Fp7BU">WhatsApp Group</a>.
+            <br /><b>Email:</b> Email us at <a style={{ color: "blue" }} href="mailto:info@studyoracle.com">info@studyoracle.com</a> with your ideas.
             <br />
             <br />
             StudyOracle simplifies research, saves time, and enhances understanding. It&apos;s your comprehensive study companion, supported by AI and a vibrant community. Empower your academic journey with StudyOracle today.

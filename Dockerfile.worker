@@ -1,7 +1,7 @@
 # Stage 1: Base image with dependencies
 FROM --platform=linux/amd64 ubuntu:latest as base
 RUN apt-get update && \
-        apt-get install -y python3 python3-pip && \
+        apt-get install -y python3 python3-pip postgresql-client libpq-dev libcurl4-openssl-dev libssl-dev && \
         apt-get clean && \
         rm -rf /var/lib/apt/lists/*
 
@@ -16,5 +16,5 @@ RUN pipenv install --system --deploy
 FROM dependencies as final
 COPY bin bin
 COPY server server
-ENTRYPOINT ["/app/bin/docker-entrypoint"]
-CMD ["serve"]
+
+CMD ["celery", "--app", "server.tasks.studyoracle", "worker", "--loglevel=info"]

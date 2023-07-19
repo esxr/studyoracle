@@ -1,14 +1,49 @@
 version: "3.9"
 
 services:
+  database:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: verySecretPassword
+      POSTGRES_USER: administrator
+      POSTGRES_DB: studyoracledb
+
   app:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.server
     restart: always
     volumes:
       - ./server:/app/server
+      - ./credentials:/root/.aws/credentials
     environment:
       OPENAI_API_KEY: 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
+      SQLALCHEMY_DATABASE_URI: postgresql://administrator:verySecretPassword@database:5432/studyoracledb
+      CELERY_BROKER_URL: redis://redis:6379/
+      CELERY_RESULT_BACKEND: redis://redis:6379/
     ports:
       - "8080:8080"
+
+  # for local testing only
+  redis:
+    image: redis:latest
+    restart: always
+    ports:
+      - "6379:6379"
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    restart: always
+    volumes:
+      - ./server:/app/server
+      - ./credentials:/root/.aws/credentials
+    environment:
+      # CELERY_BROKER_URL: sqs://
+      # CELERY_RESULT_BACKEND: db+postgresql://administrator:verySecretPassword@database:5432/studyoracledb
+      CELERY_BROKER_URL: redis://redis:6379/
+      CELERY_RESULT_BACKEND: redis://redis:6379/
+
+    command: celery --app server.tasks.studyoracle worker --loglevel=info

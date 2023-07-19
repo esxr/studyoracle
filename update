@@ -6,5 +6,6 @@ cp -r frontend/build/ server/frontend/build/
 
 # push everything to AWS
 terraform apply \
-    -auto-approve -replace=aws_ecr_repository.studyoracle_server \
-    -auto-approve -replace=aws_route53_record.studyoracle
+    -auto-approve \
+    -replace=aws_ecr_repository.studyoracle_server \
+    -replace=aws_route53_record.studyoracle

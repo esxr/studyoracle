@@ -42,10 +42,13 @@ data "aws_region" "current" {}
 data "aws_caller_identity" "current" {}
 
 locals {
-    openai_api_key = "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"
-    server_image = aws_ecr_repository.studyoracle_server.repository_url
-    region = data.aws_region.current.name
-    account_id = data.aws_caller_identity.current.account_id
+  openai_api_key    = "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"
+  server_image      = aws_ecr_repository.studyoracle_server.repository_url
+  worker_image      = aws_ecr_repository.studyoracle_worker.repository_url
+  database_username = "administrator"
+  database_password = "VerySecurePassword123XYZ"
+  region            = data.aws_region.current.name
+  account_id        = data.aws_caller_identity.current.account_id
 }
 
 data "aws_iam_role" "lab" {
@@ -53,7 +56,7 @@ data "aws_iam_role" "lab" {
 }
 
 data "aws_vpc" "default" {
-    default = true
+  default = true
 }
 
 data "aws_subnets" "private" {

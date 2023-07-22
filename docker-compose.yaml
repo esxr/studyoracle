@@ -12,7 +12,7 @@ services:
   app:
     build:
       context: .
-      dockerfile: Dockerfile.server
+      dockerfile: Dockerfile.server.dev
     restart: always
     volumes:
       - ./server:/app/server
@@ -35,14 +35,13 @@ services:
   worker:
     build:
       context: .
-      dockerfile: Dockerfile.worker
+      dockerfile: Dockerfile.worker.dev
     restart: always
     volumes:
       - ./server:/app/server
       - ./credentials:/root/.aws/credentials
     environment:
-      # CELERY_BROKER_URL: sqs://
-      # CELERY_RESULT_BACKEND: db+postgresql://administrator:verySecretPassword@database:5432/studyoracledb
+      OPENAI_API_KEY: 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
       CELERY_BROKER_URL: redis://redis:6379/
       CELERY_RESULT_BACKEND: redis://redis:6379/
 

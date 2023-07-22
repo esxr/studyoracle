@@ -19,6 +19,7 @@ boto3 = "*"
 celery = {extras = ["sqs"], version = "*"}
 psycopg2 = "*"
 redis = "*"
+watchdog = "*"
 
 [requires]
 python_version = "3.9"

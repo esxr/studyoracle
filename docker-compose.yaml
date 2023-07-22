@@ -39,10 +39,9 @@ services:
     restart: always
     volumes:
       - ./server:/app/server
+      - ./scripts:/app/scripts
       - ./credentials:/root/.aws/credentials
     environment:
       OPENAI_API_KEY: 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
       CELERY_BROKER_URL: redis://redis:6379/
       CELERY_RESULT_BACKEND: redis://redis:6379/
-
-    command: celery --app server.tasks.studyoracle worker --loglevel=info

@@ -16,9 +16,10 @@ RUN pipenv install --system --deploy
 FROM dependencies as final
 COPY bin bin
 COPY server server
+COPY scripts scripts
 
 # Add hot-reload to celery worker
 # ENV LANG=C.UTF-8
-# CMD ["pipenv", "run", "watchmedo", "auto-restart", "--directory", "server", "--recursive", "--pattern", "*.py", "--", "pipenv", "run", "celery", "--app", "server.tasks.studyoracle", "worker", "--loglevel=info"]
+CMD ["pipenv", "--python", "/usr/bin/python3", "run", "watchmedo", "auto-restart", "--directory", "server", "--recursive", "--pattern", "*.py", "--", "pipenv", "run", "celery", "--app", "server.tasks.studyoracle", "worker", "--loglevel=info"]
 
-CMD ["celery", "--app", "server.tasks.studyoracle", "worker", "--loglevel=info"]
+# CMD ["celery", "--app", "server.tasks.studyoracle", "worker", "--loglevel=info"]

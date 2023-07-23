@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Head from 'next/head';
 import { Layout, theme } from 'antd';
 import TopBar from '../components/TopBar';
-import GoogleAuth from '@/components/GoogleAuth';
+// import GoogleAuth from '@/components/GoogleAuth';
 
 const { Header, Sider, Content } = Layout;
 const { useToken } = theme;
@@ -27,7 +27,7 @@ export default function Login() {
 
           <Content style={{ backgroundColor: token.colorBgBase }}>
             <div style={{ height: '100%', borderLeft: '1px solid', borderLeftColor: token.colorSecondary, padding: 20, display: 'flex', flexDirection: 'column' }}>
-                <GoogleAuth />
+                {/* <GoogleAuth /> */}
             </div>
           </Content>
         </Layout>

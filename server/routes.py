@@ -23,8 +23,8 @@ def get_health():
     return "ok", 200
 
 # feed documents into the database
-@api.route('/doc', methods=['POST'])
-def get_documents():
+@api.route('/add_doc', methods=['POST'])
+def add_document():
     try:
         if 'file' not in request.files:
             return jsonify({'error': 'No file part'}), 400
@@ -34,7 +34,6 @@ def get_documents():
 
         # Call the Celery task to handle the file upload asynchronously
         task = studyoracle.add_doc.apply_async(args=[file_content])
-        print ("task id: ", task.id)
 
         return jsonify({'task_id': task.id}), 202  # Accepted
 
@@ -44,8 +43,8 @@ def get_documents():
     # return "ok", 200
 
 # ask a question to the database
-@api.route('/ask', methods=['POST'])
-def search():
+@api.route('/message', methods=['POST'])
+def message():
     try:
         if 'query' not in request.json:
             return jsonify({'error': 'No query found'}), 400
@@ -110,3 +109,17 @@ def get_task_status(task_id):
         }
 
     return jsonify(response), response['status']
+
+# Route to get the result of any Celery task
+@api.route('/task/<task_id>/result', methods=['GET'])
+def get_task_result(task_id):
+
+    try:
+        result = AsyncResult(task_id)
+        if not result.ready():
+            return jsonify({'error': 'Task result not ready yet.'}), 404
+        
+        return jsonify({'result': result.get()}), 200
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500

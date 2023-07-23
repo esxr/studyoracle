@@ -6,10 +6,15 @@ import TopBar from '../components/TopBar';
 import Sidebar from '../components/Sidebar';
 import ChatHistory from '../components/ChatHistory';
 import ChatInput from '../components/ChatInput';
-import GoogleAuth from '@/components/GoogleAuth';
+import Link from 'next/link';
 
 const { Header, Sider, Content } = Layout;
 const { useToken } = theme;
+
+// set preferences to check API response
+const RESPONSE_TIMEOUT = 40;
+const RESPONSE_CHECK_INTERVAL = 500;
+
 
 export default function Home() {
   const { token } = useToken();
@@ -21,7 +26,7 @@ export default function Home() {
   const [thinking, setThinking] = useState(false);
   const [fileList, setFileList] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [isSignedIn, setIsSignedIn] = useState(false);
+  const [isSignedIn, setIsSignedIn] = useState(true);
 
   useEffect(() => {
     // Check if the user is already signed in
@@ -41,6 +46,38 @@ export default function Home() {
     setMessage(event.target.value);
   };
 
+  // keep trying at '/task/<task_id>' until the task is complete
+  const getMessageResult = async (task_id) => {
+
+    // query the "/task/<task_id>" endpoint until the task is complete
+    //  or until 20 seconds have passed
+    let isComplete = false;
+    let timeout = 0;
+    let responseData = null;
+    while (!isComplete && timeout < RESPONSE_TIMEOUT) {
+      let response = await fetch(`/task/${task_id}`);
+      responseData = await response.json();
+      if (responseData.status == 200) {
+        isComplete = true;
+      }
+
+      // sleep for 1 second
+      await new Promise((resolve) => setTimeout(resolve, RESPONSE_CHECK_INTERVAL));
+      timeout += 1;
+    }
+
+    // if task still not complete, return null
+    if (!isComplete) {
+      return "Sorry, I couldn't answer this question due to some error.";
+    }
+
+    // return the result
+    let answer = await fetch(`/task/${task_id}/result`);
+    responseData = await answer.json();
+
+    return responseData.result;
+  }
+
   const handleSendMessage = async () => {
     if (message.trim() !== '') {
       setChatHistory([
@@ -52,7 +89,7 @@ export default function Home() {
       setThinking(true);
 
       try {
-        const response = await fetch('/ask', {
+        const response = await fetch('/message', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -61,11 +98,12 @@ export default function Home() {
         });
 
         if (response.ok) {
-          const responseData = await response.text();
+          const responseData = await getMessageResult((await response.json()).task_id);
           setChatHistory((prevChatHistory) => [
             ...prevChatHistory,
             { text: responseData, sender: 'AI' },
           ]);
+
         } else {
           console.error('API request failed');
         }
@@ -82,6 +120,28 @@ export default function Home() {
     setCollapsed(!collapsed);
   };
 
+  const isDocUploaded = async (task_id) => {
+    console.log("task_id:", task_id)
+
+    let isComplete = false;
+    let timeout = 0;
+    while ((!isComplete) && (timeout < RESPONSE_TIMEOUT)) {
+      const response = await fetch(`/task/${task_id}`);
+      const responseData = await response.json();
+      if (responseData.status == 200) {
+        return true;
+      }
+
+      // sleep for 1 second
+      await new Promise((resolve) => setTimeout(resolve, RESPONSE_CHECK_INTERVAL));
+      timeout += 1;
+
+      console.log("try number:", timeout)
+    }
+
+    return false
+  }
+
   const handleSelectedFile = async (file) => {
     setLoading(true)
     if (file) {
@@ -90,15 +150,17 @@ export default function Home() {
         const formData = new FormData();
         formData.append('file', file);
 
-        // Send the file to the "/doc" endpoint
-        const response = await fetch('/doc', {
+        // Send the file to the "/add_doc" endpoint
+        let response = await fetch('/add_doc', {
           method: 'POST',
           body: formData,
         });
 
         if (response.ok) {
-          // File upload successful, update the list
-          setFileList((prevFileList) => [...prevFileList, file.name]);
+          const uploaded = await isDocUploaded((await response.json()).task_id);
+          if (uploaded) {
+            setFileList((prevFileList) => [...prevFileList, file.name]);
+          }
         } else {
           // File upload failed, handle the error
           console.error('File upload failed');
@@ -125,7 +187,7 @@ export default function Home() {
           <TopBar />
           {isSignedIn && (
             <Link href="/login">
-              <a>Sign Out</a>
+              Sign Out
             </Link>
           )}
         </Header>

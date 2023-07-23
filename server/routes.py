@@ -6,6 +6,8 @@ from server.utils import convert_pdf_to_documents, init_vector_store, retrieve_i
 from server.tasks import studyoracle
 from server.tasks.studyoracle import celery
 
+from celery.result import AsyncResult
+
 # Enum to represent task TaskState
 class TaskState(Enum):
     PENDING = 1
@@ -83,34 +85,28 @@ def handle_task(task_name):
 # Route to check the status of any Celery task
 @api.route('/task/<task_id>', methods=['GET'])
 def get_task_status(task_id):
-    task = celery.AsyncResult(task_id)
-    if task.state == TaskState.PENDING:
-        response = {
-            'status': TaskState.PENDING.name,
-            'message': 'Task is waiting for execution.'
-        }
-    elif task.state == TaskState.STARTED:
-        response = {
-            'status': TaskState.STARTED.name,
-            'message': 'Task is currently being executed.'
-        }
-    elif task.state == TaskState.SUCCESS:
+    task_result = AsyncResult(task_id)
+    
+    response = {
+        'status': TaskState.UNKNOWN.name,
+        'message': 'Task status is unknown.',
+        'status': 404
+    }
+
+    if task_result.ready() and task_result.successful():
         response = {
             'status': TaskState.SUCCESS.name,
-            'message': 'Task has been completed successfully.',
-            'result': task.get()  # Get the task result
+            'message': 'Task was executed successfully!',
+            'status': 200
         }
-    elif task.state == TaskState.FAILURE:
+
+    
+    elif task_result.failed():
         response = {
             'status': TaskState.FAILURE.name,
             'message': 'Task has encountered an error.',
-            'error': str(task.info)  # Get the task error message
-        }
-    else:
-        response = {
-            'status': TaskState.UNKNOWN.name,
-            'message': 'Task status is unknown.'
+            'error': 'Task failed!',
+            'status': 500
         }
 
-    return jsonify(response), 200
-
+    return jsonify(response), response['status']

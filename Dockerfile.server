@@ -14,5 +14,9 @@ RUN pipenv install --system --deploy
 # Stage 3: Final image for running the application
 COPY bin bin
 COPY server server
+
+# push the credentials to the container (for SQS queue)
+COPY credentials /root/.aws/credentials
+
 ENTRYPOINT ["/app/bin/docker-entrypoint"]
 CMD ["serve"]

@@ -1,1 +1,1 @@
-http://studyoracle-549905206.us-east-1.elb.amazonaws.com
+http://studyoracle-528907971.us-east-1.elb.amazonaws.com

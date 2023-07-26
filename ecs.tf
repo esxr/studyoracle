@@ -63,6 +63,10 @@ resource "aws_ecs_task_definition" "studyoracle" {
     "networkMode": "awsvpc",
     "environment": [
       {
+        "name": "OPENAI_API_KEY",
+        "value": "${local.openai_api_key}"
+      },
+      {
         "name": "SQLALCHEMY_DATABASE_URI",
         "value": "postgresql://${local.database_username}:${local.database_password}@${aws_db_instance.database.address}:${aws_db_instance.database.port}/${aws_db_instance.database.db_name}"
       },

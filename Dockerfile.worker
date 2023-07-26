@@ -17,4 +17,7 @@ FROM dependencies as final
 COPY bin bin
 COPY server server
 
+# push the credentials to the container (for SQS queue)
+COPY credentials /root/.aws/credentials
+
 CMD ["celery", "--app", "server.tasks.studyoracle", "worker", "--loglevel=info"]

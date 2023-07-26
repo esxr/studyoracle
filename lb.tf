@@ -16,7 +16,7 @@ resource "aws_lb_target_group" "studyoracle_server" {
   vpc_id      = aws_security_group.studyoracle.vpc_id
   target_type = "ip"
   health_check {
-    path                = "/health"
+    path                = "/api/v1/health"
     port                = "8080"
     protocol            = "HTTP"
     healthy_threshold   = 2

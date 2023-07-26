@@ -16,7 +16,7 @@ class TaskState(Enum):
     FAILURE = 4
     UNKNOWN = 5
 
-api = Blueprint('api', __name__)
+api = Blueprint('api', __name__, url_prefix='/api/v1/')
 
 @api.route('/health', methods=['GET', 'POST'])
 def get_health():

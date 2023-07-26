@@ -7,6 +7,8 @@ import Sidebar from '../components/Sidebar';
 import ChatHistory from '../components/ChatHistory';
 import ChatInput from '../components/ChatInput';
 import Link from 'next/link';
+import Login from './login';
+import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
 
 const { Header, Sider, Content } = Layout;
 const { useToken } = theme;
@@ -16,7 +18,7 @@ const RESPONSE_TIMEOUT = 40;
 const RESPONSE_CHECK_INTERVAL = 500;
 
 
-export default function Home() {
+function Home() {
   const { token } = useToken();
   const router = useRouter();
 
@@ -26,21 +28,12 @@ export default function Home() {
   const [thinking, setThinking] = useState(false);
   const [fileList, setFileList] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [isSignedIn, setIsSignedIn] = useState(true);
+
+  const { user, isAuthenticated, isLoading } = useAuth0();
 
   useEffect(() => {
-    // Check if the user is already signed in
-
-    // Listen for sign-in state changes
+    console.log("isAuthenticated: ", isAuthenticated);
   }, []);
-
-  // reroute to login page if not signed in
-  useEffect(() => {
-    if (!isSignedIn) {
-      // Redirect to the sign-in page if not signed in
-      router.push('/login');
-    }
-  }, [isSignedIn, router]);
 
   const handleMessageChange = (event) => {
     setMessage(event.target.value);
@@ -55,7 +48,7 @@ export default function Home() {
     let timeout = 0;
     let responseData = null;
     while (!isComplete && timeout < RESPONSE_TIMEOUT) {
-      let response = await fetch(`/task/${task_id}`);
+      let response = await fetch(`/api/v1/task/${task_id}`);
       responseData = await response.json();
       if (responseData.status == 200) {
         isComplete = true;
@@ -72,7 +65,7 @@ export default function Home() {
     }
 
     // return the result
-    let answer = await fetch(`/task/${task_id}/result`);
+    let answer = await fetch(`/api/v1/task/${task_id}/result`);
     responseData = await answer.json();
 
     return responseData.result;
@@ -89,7 +82,7 @@ export default function Home() {
       setThinking(true);
 
       try {
-        const response = await fetch('/message', {
+        const response = await fetch('/api/v1/message', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -121,12 +114,10 @@ export default function Home() {
   };
 
   const isDocUploaded = async (task_id) => {
-    console.log("task_id:", task_id)
-
     let isComplete = false;
     let timeout = 0;
     while ((!isComplete) && (timeout < RESPONSE_TIMEOUT)) {
-      const response = await fetch(`/task/${task_id}`);
+      const response = await fetch(`/api/v1/task/${task_id}`);
       const responseData = await response.json();
       if (responseData.status == 200) {
         return true;
@@ -135,8 +126,6 @@ export default function Home() {
       // sleep for 1 second
       await new Promise((resolve) => setTimeout(resolve, RESPONSE_CHECK_INTERVAL));
       timeout += 1;
-
-      console.log("try number:", timeout)
     }
 
     return false
@@ -151,7 +140,7 @@ export default function Home() {
         formData.append('file', file);
 
         // Send the file to the "/add_doc" endpoint
-        let response = await fetch('/add_doc', {
+        let response = await fetch('/api/v1//add_doc', {
           method: 'POST',
           body: formData,
         });
@@ -163,7 +152,6 @@ export default function Home() {
           }
         } else {
           // File upload failed, handle the error
-          console.error('File upload failed');
           alert("File Upload Failed!")
         }
       } catch (error) {
@@ -185,7 +173,7 @@ export default function Home() {
       <Layout style={{ height: '100vh' }}>
         <Header style={{ backgroundColor: token.colorAccent }}>
           <TopBar />
-          {isSignedIn && (
+          {isAuthenticated && (
             <Link href="/login">
               Sign Out
             </Link>
@@ -208,3 +196,9 @@ export default function Home() {
     </div>
   );
 };
+
+export default Home
+
+// export default withAuthenticationRequired(Home, {
+//   onRedirecting: () => <Login />,
+// });

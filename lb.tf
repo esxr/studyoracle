@@ -26,11 +26,32 @@ resource "aws_lb_target_group" "studyoracle_server" {
   }
 }
 
-# define the external side of the load balancer
+
+# define the external side of the load balancer (for http)
 resource "aws_lb_listener" "studyoracle_server" {
   load_balancer_arn = aws_lb.studyoracle.arn
   port              = "80"
   protocol          = "HTTP"
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.studyoracle_server.arn
+  }
+}
+
+# Find the ARN of the certificate issued against the domain (for HTTPS)
+data "aws_acm_certificate" "issued" {
+  domain   = "*.studyoracle.com"
+  statuses = ["ISSUED"]
+}
+
+# define the external side of the load balancer (for https)
+resource "aws_lb_listener" "studyoracle_server_https" {
+  load_balancer_arn = aws_lb.studyoracle.arn
+  port              = "443"
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-2016-08"
+  certificate_arn   = data.aws_acm_certificate.issued.arn
+
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.studyoracle_server.arn
@@ -47,6 +68,14 @@ resource "aws_security_group" "studyoracle_lb" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   egress {
     from_port   = 0
     to_port     = 0

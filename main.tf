@@ -69,7 +69,7 @@ data "aws_subnets" "private" {
 #------------------------------------------------------------
 # CONFIGURE DEPLOYMENT URL OUTPUT AFTER BUILD
 resource "local_file" "url" {
-  content  = "http://${aws_lb.studyoracle.dns_name}"
+  content  = "https://${aws_lb.studyoracle.dns_name}"
   filename = "./api.txt"
 }
 

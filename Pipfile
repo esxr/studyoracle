@@ -20,6 +20,7 @@ celery = {extras = ["sqs"], version = "*"}
 psycopg2 = "*"
 redis = "*"
 watchdog = "*"
+pyopenssl = "*"
 
 [requires]
 python_version = "3.9"

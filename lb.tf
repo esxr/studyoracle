@@ -12,13 +12,13 @@ resource "aws_lb" "studyoracle" {
 resource "aws_lb_target_group" "studyoracle_server" {
   name        = "studyoracleserver"
   port        = 8080
-  protocol    = "HTTP"
+  protocol    = "HTTPS"
   vpc_id      = aws_security_group.studyoracle.vpc_id
   target_type = "ip"
   health_check {
     path                = "/api/v1/health"
     port                = "8080"
-    protocol            = "HTTP"
+    protocol            = "HTTPS"
     healthy_threshold   = 2
     unhealthy_threshold = 2
     timeout             = 5
@@ -40,7 +40,7 @@ resource "aws_lb_listener" "studyoracle_server" {
 
 # Find the ARN of the certificate issued against the domain (for HTTPS)
 data "aws_acm_certificate" "issued" {
-  domain   = "*.studyoracle.com"
+  domain   = "studyoracle.com"
   statuses = ["ISSUED"]
 }
 

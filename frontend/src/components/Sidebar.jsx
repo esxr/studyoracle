@@ -1,7 +1,8 @@
 import { React, useRef, useState } from 'react';
 import { Button, List, theme } from 'antd';
 import { MenuOutlined, PlusOutlined, RightOutlined } from '@ant-design/icons';
-import Link from 'next/link';
+import { Link } from 'react-router-dom';
+
 
 const { useToken } = theme;
 

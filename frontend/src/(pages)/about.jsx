@@ -1,27 +1,27 @@
-import Head from 'next/head';
 import { Layout, Button, theme } from 'antd';
-import Link from 'next/link';
-import TopBar from '@/components/TopBar';
-import Title from '@/components/Title';
+import { Link } from 'react-router-dom';
 
 const { Header, Content } = Layout;
 const { useToken } = theme;
+
+import Title from "../components/Title"
+import TopBar from "../components/TopBar"
 
 export default function About() {
   const { token } = useToken();
 
   return (
     <div style={{ height: '100vh' }}>
-      <Head>
+      <header>
         <title>About - Study Oracle</title>
         <link rel="icon" href="/favicon.ico" />
-      </Head>
+      </header>
 
       <Layout style={{ height: '100%', overflow: 'scroll' }}>
         <Header style={{ backgroundColor: token.colorAccent }}>
           <header style={{ backgroundColor: token.colorAccent }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Title />
+              <Title/>
               <div style={{ marginLeft: 'auto', marginRight: 16 }}>
                 <Link href="/">
                   <div style={{ color: 'white' }}>Back</div>

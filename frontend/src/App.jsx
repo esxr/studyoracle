@@ -3,26 +3,16 @@ import './App.css'
 import Home from './(pages)'
 import { ConfigProvider } from 'antd'
 import { Route, Router, Routes, useNavigate } from 'react-router-dom'
-import { withLoggedIn } from './utils/ProtectedRoute'
 import { Auth0Provider } from '@auth0/auth0-react'
 import { getConfig } from './config'
 import About from './(pages)/about'
 import Login from './(pages)/login'
-
-// For Auth0 Login
-const useOnRedirectCallback = (appState) => {
-  const navigate = useNavigate();
-  navigate(
-    appState && appState.returnTo ? appState.returnTo : window.location.pathname
-  );
-};
 
 // Auth0 config
 const config = getConfig();
 const providerConfig = {
   domain: config.domain,
   clientId: config.clientId,
-  onRedirectCallback: useOnRedirectCallback,
   authorizationParams: {
     redirect_uri: window.location.origin,
     ...(config.audience ? { audience: config.audience } : null),
@@ -30,12 +20,20 @@ const providerConfig = {
 }
 
 function App() {
-  const HomeProtected = withLoggedIn(Home)
+
+  const onRedirectCallback = (appState) => {
+    const navigate = useNavigate();
+    console.log(appState)
+    navigate(
+      appState && appState.returnTo ? appState.returnTo : window.location.pathname
+    );
+  }
 
   return (
     <>
       <Auth0Provider
         {...providerConfig}
+        onRedirectCallback={onRedirectCallback}
       >
         <ConfigProvider
           theme={{
@@ -51,12 +49,12 @@ function App() {
           }}
         >
           <Routes>
-            <Route path="/" element={<HomeProtected />} />
+            <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
             <Route path="/login" element={<Login />} />
           </Routes>
         </ConfigProvider>
-      </Auth0Provider>
+      </Auth0Provider >
     </>
   )
 }

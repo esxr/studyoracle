@@ -12,7 +12,7 @@ services:
   app:
     build:
       context: .
-      dockerfile: Dockerfile.server.dev
+      dockerfile: Dockerfile.server
     restart: always
     volumes:
       - ./server:/app/server
@@ -35,7 +35,7 @@ services:
   worker:
     build:
       context: .
-      dockerfile: Dockerfile.worker.dev
+      dockerfile: Dockerfile.worker
     restart: always
     volumes:
       - ./server:/app/server

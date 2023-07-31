@@ -31,6 +31,7 @@ function Home() {
     } = useAuth0();
 
     useEffect(() => {
+        console.log("isAuthenticated: ", isAuthenticated)
         if (isAuthenticated) {
             console.log(user)
         }

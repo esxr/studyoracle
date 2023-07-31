@@ -14,16 +14,11 @@ export default function Login() {
   const {
     user,
     isAuthenticated,
-    loginWithRedirect,
-    logout
   } = useAuth0();
 
-  const logoutWithRedirect = () =>
-    logout({
-      logoutParams: {
-        returnTo: window.location.origin,
-      }
-    });
+  useEffect(() => {
+    
+  }, [isAuthenticated])
 
   return (
     <div style={{ height: '100vh', width: '100vw' }}>
@@ -43,7 +38,7 @@ export default function Login() {
           <Content style={{ backgroundColor: token.colorBgBase }}>
             <div style={{ height: '100%', borderLeft: '1px solid', borderLeftColor: token.colorSecondary, padding: 20, display: 'flex', flexDirection: 'column' }}>
               {!isAuthenticated && <LoginButton />}
-              {!isAuthenticated && <LogoutButton />}
+              {isAuthenticated && <LogoutButton />}
             </div>
           </Content>
         </Layout>

@@ -20,7 +20,8 @@ COPY bin bin
 COPY server server
 
 # push the credentials to the container (for SQS queue)
-COPY credentials /root/.aws/credentials
+# TODO: remove this because it has been achieved through IAM role (SQSFullAccess)
+# COPY credentials /root/.aws/credentials
 
 ENTRYPOINT ["/app/bin/docker-entrypoint"]
 CMD ["serve"]

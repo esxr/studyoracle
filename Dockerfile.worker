@@ -18,7 +18,6 @@ COPY bin bin
 COPY server server
 
 # push the credentials to the container (for SQS queue)
-# TODO: remove this because it has been achieved through IAM role (SQSFullAccess)
-# COPY credentials /root/.aws/credentials
+COPY credentials /root/.aws/credentials
 
 CMD ["celery", "--app", "server.tasks.studyoracle", "worker", "--loglevel=info"]

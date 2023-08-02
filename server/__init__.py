@@ -22,9 +22,9 @@ def create_app(config_overrides=None):
     @app.route('/<path:path>')
     def serve_static(path):
         if path != '' and path[-1] != '/':
-            return send_from_directory('frontend/build', path)
+            return send_from_directory('frontend/dist', path)
         else:
-            return send_from_directory('frontend/build', 'index.html')
+            return send_from_directory('frontend/dist', 'index.html')
 
     from server.routes import api 
     app.register_blueprint(api) 

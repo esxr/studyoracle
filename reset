@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# run npm run build in frontend
+cd frontend && npm run build && cd ..
+cp -r frontend/dist/ server/frontend/dist/
+
+# push everything to AWS
+terraform destroy -auto-approve && terraform apply -auto-approve

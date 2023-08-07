@@ -1,9 +1,9 @@
 import os
-from flask import Flask, send_from_directory
+from flask import Flask, send_from_directory, render_template, send_file
 from flask_sqlalchemy import SQLAlchemy 
 
 def create_app(config_overrides=None):
-    app = Flask(__name__)
+    app = Flask(__name__, static_folder='frontend/build/static')
 
     app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("SQLALCHEMY_DATABASE_URI", "sqlite:///db.sqlite")
     if config_overrides: 
@@ -20,12 +20,9 @@ def create_app(config_overrides=None):
 
     @app.route('/', defaults={'path': ''})
     @app.route('/<path:path>')
-    def serve_static(path):
-        if path != '' and path[-1] != '/':
-            return send_from_directory('frontend/dist', path)
-        else:
-            return send_from_directory('frontend/dist', 'index.html')
-
+    def catch_all(path):
+        return send_file(os.path.join(os.path.dirname(__file__), 'frontend', 'build', 'index.html'))    
+    
     from server.routes import api 
     app.register_blueprint(api) 
 

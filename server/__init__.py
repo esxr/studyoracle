@@ -11,6 +11,7 @@ def create_app(config_overrides=None):
 
     from server.models import db 
     from server.models.user import User
+    from server.models.user_session import UserSession
     db.init_app(app) 
         
     # Create the database tables 

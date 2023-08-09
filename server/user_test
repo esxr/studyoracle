@@ -1,0 +1,57 @@
+#!/bin/bash
+
+# write curl requests to test CRUD functionality of users model
+# class User(db.Model): 
+#    __tablename__ = 'users' 
+ 
+#    # This is how we define a column, this is also the primary key 
+#    id = db.Column(db.String(80), primary_key=True) 
+#    # This is a manadatory column of 80 characters 
+#    name = db.Column(db.String(80), nullable=False) 
+
+#    # This is a helper method to convert the model to a dictionary 
+#    # convert the date to a string YYYY-MM-DD
+#    def to_dict(self): 
+#       return { 
+#          'id': self.id, 
+#          'name': self.name, 
+#       }
+
+#    def __repr__(self): 
+#       return f'<User {self.id} {self.name} >'
+
+# SERVER: localhost:8080/api/v1
+# ENDPOINTS:
+
+# @api.route('/user', methods=['POST'])
+# also specify the id when creating the user
+  
+# # Read a user
+# @api.route('/user/<user_id>', methods=['GET'])
+    
+# # Update a user
+# @api.route('/user/<user_id>', methods=['PUT'])
+    
+# # Delete a user
+# @api.route('/user/<user_id>', methods=['DELETE'])
+
+curl -X POST -H "Content-Type: application/json" -d '{"id": "1", "name": "mike"}' localhost:8080/api/v1/user
+curl -X POST -H "Content-Type: application/json" -d '{"id": "2", "name": "john"}' localhost:8080/api/v1/user
+curl -X POST -H "Content-Type: application/json" -d '{"id": "3", "name": "jane"}' localhost:8080/api/v1/user
+curl -X POST -H "Content-Type: application/json" -d '{"id": "4", "name": "jill"}' localhost:8080/api/v1/user
+
+# test GET request
+curl localhost:8080/api/v1/user/1
+curl localhost:8080/api/v1/user/2
+curl localhost:8080/api/v1/user/3
+curl localhost:8080/api/v1/user/4
+
+# test PUT request
+curl -X PUT -H "Content-Type: application/json" -d '{"id": "1", "name": "mike changed"}' localhost:8080/api/v1/user/1
+curl -X PUT -H "Content-Type: application/json" -d '{"id": "2", "name": "john changed"}' localhost:8080/api/v1/user/2
+
+# test DELETE request
+curl -X DELETE localhost:8080/api/v1/user/1
+curl -X DELETE localhost:8080/api/v1/user/2
+curl -X DELETE localhost:8080/api/v1/user/3
+curl -X DELETE localhost:8080/api/v1/user/4

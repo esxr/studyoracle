@@ -1,12 +1,17 @@
 from flask import Blueprint, jsonify, request 
 from enum import Enum
-from server.tasks.studyoracle import add_doc, handle_message
-from server.utils import convert_pdf_to_documents, init_vector_store, retrieve_info
 
 from server.tasks import studyoracle
 from server.tasks.studyoracle import celery
-
+from server.models import db
+from server.models.user import User
+from server.utils import encode_file
 from celery.result import AsyncResult
+
+from server.models.user_session import UserSession
+from server.new_core import PDFQA
+
+import base64
 
 # Enum to represent task TaskState
 class TaskState(Enum):
@@ -22,25 +27,57 @@ api = Blueprint('api', __name__, url_prefix='/api/v1/')
 def get_health():
     return "ok", 200
 
-# feed documents into the database
-@api.route('/add_doc', methods=['POST'])
-def add_document():
+# upload a file into the database
+# Give a URL
+@api.route('/upload_file', methods=['POST'])
+def upload_document():
     try:
         if 'file' not in request.files:
             return jsonify({'error': 'No file part'}), 400
+        file = request.files['file']        
 
-        file = request.files['file']
-        file_content = file.read()
+        # encode the file into base64
+        filename = file.filename
+        file = encode_file(file)
 
         # Call the Celery task to handle the file upload asynchronously
-        task = studyoracle.add_doc.apply_async(args=[file_content])
-
+        task = studyoracle.add_doc.apply_async(args=[filename, file])
         return jsonify({'task_id': task.id}), 202  # Accepted
 
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'API route error': str(e)}), 500
 
-    # return "ok", 200
+# Add a document to the user's session
+# Given a URL
+@api.route('/add_doc', methods=['POST'])
+def add_document():
+    if 'file_url' not in request.json:
+        return jsonify({'error': 'No file URL found'}), 400
+    if 'user' not in request.form:
+        return jsonify({'error': 'No user found'}), 400
+
+    file_url = request.json['file_url']
+    # if user is not found, throw error
+    if user is None:
+        raise Exception("User not found")
+
+    # if no user session exists, create a new one
+    if UserSession.query.get(user) is None:
+        user = User.query.get(user)
+        user_session = UserSession(user=user, pdfqa=PDFQA())
+    else:
+        # retrieve user's session object from SQLAlchemy
+        user_session = UserSession.query.get(user)
+    
+    # get the session_data object from the session object
+    session_data = user_session.session_data
+    # add the PDF to the session data
+    session_data.add_pdf(file_url)
+    # update the session object
+    user_session.session_data = session_data
+
+    db.session.add(user_session)
+    db.session.commit()
 
 # ask a question to the database
 @api.route('/message', methods=['POST'])
@@ -55,6 +92,78 @@ def message():
         task = studyoracle.handle_message.apply_async(args=[query])
 
         return jsonify({'task_id': task.id}), 202  # Accepted
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+## Write all CRUD operations for user
+# Create a new user
+@api.route('/user', methods=['POST'])
+def create_user():
+    try:
+        if 'name' not in request.json:
+            return jsonify({'error': 'No name found'}), 400
+
+        name = request.json['name']
+        id = request.json.get('id', None)
+
+        # Create a new user object
+        user = User(id=id, name=name)
+        db.session.add(user)
+        db.session.commit()
+
+        return jsonify({'user_id': user.id}), 201  # Created
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+# Read a user
+@api.route('/user/<user_id>', methods=['GET'])
+def get_user(user_id):
+    try:
+        user = User.query.get(user_id)
+        if user is None:
+            return jsonify({'error': 'User not found'}), 404
+
+        return jsonify({'user': user.to_dict()}), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+# Update a user
+@api.route('/user/<user_id>', methods=['PUT'])
+def update_user(user_id):
+    try:
+        if 'id' not in request.json:
+            return jsonify({'error': 'No id found'}), 400
+
+        id = request.json['id']
+        name = request.json.get('name', None)
+
+        user = User.query.get(user_id)
+        if user is None:
+            return jsonify({'error': 'User not found'}), 404
+
+        user.name = name
+        db.session.commit()
+
+        return jsonify({'user': user.to_dict()}), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+# Delete a user
+@api.route('/user/<user_id>', methods=['DELETE'])
+def delete_user(user_id):
+    try:
+        user = User.query.get(user_id)
+        if user is None:
+            return jsonify({'error': 'User not found'}), 404
+
+        db.session.delete(user)
+        db.session.commit()
+
+        return jsonify({'user': user.to_dict()}), 200
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500

@@ -1,73 +1,55 @@
+from flask import Flask, request, jsonify
+import boto3
+import botocore
+from botocore.exceptions import NoCredentialsError
 import os
-from PyPDF2 import PdfReader
-from langchain.text_splitter import TextSplitter, RecursiveCharacterTextSplitter
-from langchain.vectorstores import FAISS
-from langchain.embeddings import OpenAIEmbeddings
-from langchain import OpenAI, VectorDBQA
+import io
+import base64
+from werkzeug.datastructures import FileStorage
 
-from langchain.agents.agent_toolkits import (
-    create_vectorstore_agent,
-    VectorStoreRouterToolkit,
-    VectorStoreInfo,
-)
+# AWS credentials are automatically read from /root/.aws/credentials
+s3_client = boto3.client('s3')
+AWS_BUCKET_NAME = "studyoracle" # TODO: Remove hardcode
 
-# load the OpenAI API key from the environment
-# if OPENAI_API_KEY is not found, throw error
-if 'OPENAI_API_KEY' not in os.environ:
-    raise Exception("OPENAI_API_KEY not found in environment variables")
+# INPUT: file object
+# OUTPUT: URL of the uploaded file
+def upload_file_to_aws_bucket(filename, file):
+    if file:
+        try:
+            s3_client.upload_fileobj(file, AWS_BUCKET_NAME, filename)
+            # Get the URL of the uploaded file
+            file_url = f"https://{AWS_BUCKET_NAME}.s3.amazonaws.com/{filename}"
+            return file_url
+        except NoCredentialsError:
+            print("Credentials not available")
+            return False
+        except botocore.exceptions.ClientError as e:
+            print('error', f'An error occurred: {e}')
+            return False
+    else:
+        print ("No file provided")
+        return False
 
-OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
-
-# gets the Large Language Model from the environment
-def get_llm():
-    return OpenAI(temperature=0.7)
-
-# Converts PDF to langchain.Document class objects
-# Splits the pdf into multiple documents
-def convert_pdf_to_documents(pdf_file):
-    # read the pdf file
-    pdf_reader = PdfReader(pdf_file)
-    # get all the text of the pdf from every page
-    pdf_text = ""
-    for page in pdf_reader.pages:
-        pdf_text += page.extract_text()
+# INPUT: FileStorage object
+# OUTPUT: base64encoded file
+def encode_file(file):
+    if isinstance(file, FileStorage):
+        # Read the binary content of the FileStorage object
+        binary_content = file.read()
+        
+        # Encode the binary content to base64
+        encoded_data = base64.b64encode(binary_content)
+    else:
+        raise ValueError("Unsupported data type. Only FileStorage objects are supported.")
     
-    # split the text into multiple documents
-    text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size = 850,
-        chunk_overlap  = 150
-    )
-    text_chunks = text_splitter.split_text(pdf_text)
-    docs = text_splitter.create_documents(text_chunks)
+    return encoded_data.decode('utf-8')
 
-    # print ("DEBUG: Total number of documents: ", len(docs))
-    # print("DEBUG: Average document length: ", sum([len(doc.page_content) for doc in docs]) / len(docs))
-
-    return docs
-
-# Stores documents in a VectorStore
-# Uses FAISS to store the documents
-def init_vector_store(docs):
-    embeddings = OpenAIEmbeddings(openai_api_key=OPENAI_API_KEY)
-    vectorstore = FAISS.from_documents(docs, embeddings)
-    return vectorstore
-
-# Performs a similarity search on a vector store
-def similarity_search(vectorstore, query):
-    return vectorstore.similarity_search(query)
-
-# retrieve information from one or more vectorstores
-def retrieve_info(query, vectorstore, llm=None):
-    llm = get_llm()
-    vectorstore_info = VectorStoreInfo(
-        name="PDF Store",
-        description="A vector store for PDF documents",
-        vectorstore=vectorstore,
-    )
-
-    toolkit = VectorStoreRouterToolkit(
-        vectorstores=[vectorstore_info], 
-        llm=llm
-    )
-    agent_executor = create_vectorstore_agent(llm=llm, toolkit=toolkit, verbose=True)
-    return agent_executor.run(query)
+# INPUT: base64encoded file, filename
+# OUTPUT: FileStorage object
+def decode_file(filename, encoded_data):
+    decoded_data = base64.b64decode(encoded_data.encode('utf-8'))
+    
+    # Create a new FileStorage object with the decoded binary data
+    decoded_file_storage = FileStorage(io.BytesIO(decoded_data), filename)
+    
+    return decoded_file_storage

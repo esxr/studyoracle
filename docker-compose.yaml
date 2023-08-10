@@ -45,3 +45,4 @@ services:
       OPENAI_API_KEY: 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
       CELERY_BROKER_URL: redis://redis:6379/
       CELERY_RESULT_BACKEND: redis://redis:6379/
+      C_FORCE_ROOT: "true"

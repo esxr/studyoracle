@@ -56,6 +56,11 @@ export const ChatProvider = ({ children }) => {
         return responseData.result;
     }
 
+    // fetch all the files in the session
+    const fetchSessionFiles = async () => {
+
+    }
+
     const handleSendMessage = async () => {
         if (message.trim() !== '') {
             setChatHistory([
@@ -72,7 +77,10 @@ export const ChatProvider = ({ children }) => {
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ user: user.sub, query: message }),
+                    body: JSON.stringify({
+                        user: user.sub,
+                        query: message
+                    }),
                 });
 
                 if (response.ok) {

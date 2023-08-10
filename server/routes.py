@@ -98,13 +98,23 @@ def message():
         
         if 'user' not in request.json:
             return jsonify({'error': 'No user found'}), 400
-
+    
         query = request.json['query']
         user = request.json['user']
 
-        # Call the Celery task to handle the query asynchronously
-        task = studyoracle.handle_message.apply_async(args=[user, query])
+        if user is None:
+            raise Exception("User not found")
+    
+        # retrieve user's session object from SQLAlchemy
+        user_session = UserSession.query.get(user)
+        # get the session_dta object from the session object
+        if user_session is None:
+            raise Exception("User session not found")
+        
+        session_data = user_session.session_data
 
+        # Call the Celery task to handle the query asynchronously
+        task = studyoracle.handle_message.apply_async(args=[session_data, query])
         return jsonify({'task_id': task.id}), 202  # Accepted
 
     except Exception as e:

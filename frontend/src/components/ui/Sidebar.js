@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 
 const { useToken } = theme;
 
-const Sidebar = ({ collapsed, handleToggleSidebar, handleSelectedFile, dataSource, loading }) => {
+const Sidebar = ({ collapsed, handleToggleSidebar, uploadSelectedFile, dataSource, loading }) => {
     const fileInputRef = useRef(null);
     const { token } = useToken();
 
@@ -61,7 +61,7 @@ const Sidebar = ({ collapsed, handleToggleSidebar, handleSelectedFile, dataSourc
                             style={{ display: 'none' }}
                             ref={fileInputRef}
                             onChange={(e) => {
-                                handleSelectedFile(e.target.files[0])
+                                uploadSelectedFile(e.target.files[0])
                             }}
                         />
                         Add File

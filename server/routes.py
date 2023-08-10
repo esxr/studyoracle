@@ -51,12 +51,15 @@ def upload_document():
 # Given a URL
 @api.route('/add_doc', methods=['POST'])
 def add_document():
-    if 'file_url' not in request.json:
+    if 'url' not in request.json:
         return jsonify({'error': 'No file URL found'}), 400
-    if 'user' not in request.form:
+    if 'user' not in request.json:
         return jsonify({'error': 'No user found'}), 400
 
-    file_url = request.json['file_url']
+    url = request.json['url']
+    user = request.json['user']
+    print(url)
+    
     # if user is not found, throw error
     if user is None:
         raise Exception("User not found")
@@ -64,7 +67,12 @@ def add_document():
     # if no user session exists, create a new one
     if UserSession.query.get(user) is None:
         user = User.query.get(user)
-        user_session = UserSession(user=user, pdfqa=PDFQA())
+
+        # If the user does not exist, throw error
+        if user is None:
+            raise Exception("User not found")
+        
+        user_session = UserSession(user=user.id, session_data=PDFQA())
     else:
         # retrieve user's session object from SQLAlchemy
         user_session = UserSession.query.get(user)
@@ -72,12 +80,14 @@ def add_document():
     # get the session_data object from the session object
     session_data = user_session.session_data
     # add the PDF to the session data
-    session_data.add_pdf(file_url)
+    session_data.add_pdf(url)
     # update the session object
     user_session.session_data = session_data
 
     db.session.add(user_session)
     db.session.commit()
+
+    return jsonify({'user_session': 'Document added!'}), 201
 
 # ask a question to the database
 @api.route('/message', methods=['POST'])
@@ -85,11 +95,15 @@ def message():
     try:
         if 'query' not in request.json:
             return jsonify({'error': 'No query found'}), 400
+        
+        if 'user' not in request.json:
+            return jsonify({'error': 'No user found'}), 400
 
         query = request.json['query']
+        user = request.json['user']
 
         # Call the Celery task to handle the query asynchronously
-        task = studyoracle.handle_message.apply_async(args=[query])
+        task = studyoracle.handle_message.apply_async(args=[user, query])
 
         return jsonify({'task_id': task.id}), 202  # Accepted
 

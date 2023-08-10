@@ -21,6 +21,7 @@ psycopg2 = "*"
 redis = "*"
 watchdog = "*"
 pyopenssl = "*"
+pypdf = "*"
 
 [requires]
 python_version = "3.9"

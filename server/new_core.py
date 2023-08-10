@@ -31,6 +31,12 @@ from langchain.llms import OpenAI
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.vectorstores import FAISS
 
+from io import BytesIO
+import boto3
+from PyPDF2 import PdfReader
+
+from server.utils import convert_PageObjects_to_Documents
+
 
 def get_all_pdf_files(directory):
     return glob.glob(f"{directory}/**/*.pdf", recursive=True)
@@ -57,9 +63,21 @@ class PDFQA:
         vectordb = FAISS.from_documents([Document(page_content=text)], self.embedding_function)
         return vectordb
 
+    # function to read PDF from an S3 bucket url using boto3
+    # the final output should be list[Document]
+    def read_pdf_from_s3(self, filename):
+        s3 = boto3.resource("s3")
+        # TODO: remove hardcoded bucket name
+        obj = s3.Object("studyoracle", filename)
+        fs = obj.get()["Body"].read()
+        reader = PdfReader(BytesIO(fs))
+
+        # convert reader.pages (List[PageObject]) to List[Documents]
+        return convert_PageObjects_to_Documents(reader.pages)
+
     def add_pdf(self, pdf_path):
-        # Load documents
-        docs = PyPDFLoader(pdf_path).load()
+        docs = self.read_pdf_from_s3(pdf_path)
+        # docs = PyPDFLoader(pdf_path).load()
         # Split documents into text chunks
         text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
         texts = text_splitter.split_documents(docs)

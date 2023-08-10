@@ -1,5 +1,7 @@
 // ChatContext.js
 import React, { createContext, useState, useContext } from 'react';
+import { useAuth0 } from "@auth0/auth0-react";
+
 // set preferences to check API response
 const RESPONSE_TIMEOUT = 40;
 const RESPONSE_CHECK_INTERVAL = 500;
@@ -16,13 +18,14 @@ export const ChatProvider = ({ children }) => {
     const [chatHistory, setChatHistory] = useState([]);
     const [fileList, setFileList] = useState([]);
     const [loading, setLoading] = useState(false);
+    const { user } = useAuth0();
 
     const handleMessageChange = (event) => {
         setMessage(event.target.value);
     };
 
     // keep trying at '/task/<task_id>' until the task is complete
-    const getMessageResult = async (task_id) => {
+    const getTaskResult = async (task_id) => {
 
         // query the "/task/<task_id>" endpoint until the task is complete
         //  or until 20 seconds have passed
@@ -69,11 +72,11 @@ export const ChatProvider = ({ children }) => {
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ query: message }),
+                    body: JSON.stringify({ user: user.sub, query: message }),
                 });
 
                 if (response.ok) {
-                    const responseData = await getMessageResult((await response.json()).task_id);
+                    const responseData = await getTaskResult((await response.json()).task_id);
                     setChatHistory((prevChatHistory) => [
                         ...prevChatHistory,
                         { text: responseData, sender: 'AI' },
@@ -95,7 +98,7 @@ export const ChatProvider = ({ children }) => {
         setCollapsed(!collapsed);
     };
 
-    const isDocUploaded = async (task_id) => {
+    const isDocAdded = async (task_id) => {
         let isComplete = false;
         let timeout = 0;
         while ((!isComplete) && (timeout < RESPONSE_TIMEOUT)) {
@@ -113,7 +116,47 @@ export const ChatProvider = ({ children }) => {
         return false
     }
 
-    const handleSelectedFile = async (file) => {
+    /**
+     * Adds a url to the session
+     * @param {String} url 
+     */
+    const addDocumentToSession = async (url) => {
+        setLoading(true)
+        if (url) {
+            try {
+
+                let response = await fetch('/api/v1/add_doc', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        user: user.sub,
+                        url: url
+                    }),
+                });
+
+                if (response.ok) {
+                    return true
+                } else {
+                    // File upload failed, handle the error
+                    return false;
+                }
+            } catch (error) {
+                // Handle any network or server errors
+                console.error('Document add error:', error);
+                return false
+            }
+        }
+        setLoading(false)
+    }
+
+    /**
+     * Uploads a file to the database and creates a task
+     * which can then be queried to yield the upload URL
+     * @param {*} file 
+     */
+    const uploadSelectedFile = async (file) => {
         setLoading(true)
         if (file) {
             try {
@@ -121,16 +164,23 @@ export const ChatProvider = ({ children }) => {
                 const formData = new FormData();
                 formData.append('file', file);
 
-                // Send the file to the "/add_doc" endpoint
-                let response = await fetch('/api/v1//add_doc', {
+                let response = await fetch('/api/v1/upload_file', {
                     method: 'POST',
                     body: formData,
                 });
 
                 if (response.ok) {
-                    const uploaded = await isDocUploaded((await response.json()).task_id);
+                    let task_id = (await response.json()).task_id
+                    let uploaded = await isDocAdded(task_id);
                     if (uploaded) {
-                        setFileList((prevFileList) => [...prevFileList, file.name]);
+                        // get the url of the uploaded file
+                        let url = await getTaskResult(task_id);
+                        let added = await addDocumentToSession(url);
+                        if (added) {
+                            setFileList((prevFileList) => [...prevFileList, file.name]);
+                        } else {
+                            alert("File Upload Failed!")
+                        }
                     }
                 } else {
                     // File upload failed, handle the error
@@ -158,10 +208,11 @@ export const ChatProvider = ({ children }) => {
                 loading,
                 setLoading,
                 handleMessageChange,
-                getMessageResult,
+                getTaskResult,
                 handleSendMessage,
                 handleToggleSidebar,
-                handleSelectedFile
+                uploadSelectedFile,
+                addDocumentToSession
             }}
         >
             {children}

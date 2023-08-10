@@ -11,7 +11,7 @@
     "react-router-dom": "^6.3.0",
     "react-scripts": "5.0.1"
   },
-  "proxy": "https://localhost:8080",
+  "proxy": "http://localhost:8080",
   "scripts": {
     "start": "cross-env PORT=3000 react-scripts start",
     "build": "react-scripts build",

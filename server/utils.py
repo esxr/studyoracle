@@ -6,6 +6,7 @@ import os
 import io
 import base64
 from werkzeug.datastructures import FileStorage
+from langchain.docstore.document import Document
 
 # AWS credentials are automatically read from /root/.aws/credentials
 s3_client = boto3.client('s3')
@@ -18,8 +19,10 @@ def upload_file_to_aws_bucket(filename, file):
         try:
             s3_client.upload_fileobj(file, AWS_BUCKET_NAME, filename)
             # Get the URL of the uploaded file
-            file_url = f"https://{AWS_BUCKET_NAME}.s3.amazonaws.com/{filename}"
-            return file_url
+            # file_url = f"https://{AWS_BUCKET_NAME}.s3.amazonaws.com/{filename}"
+            # return file_url
+        
+            return filename
         except NoCredentialsError:
             print("Credentials not available")
             return False
@@ -29,6 +32,16 @@ def upload_file_to_aws_bucket(filename, file):
     else:
         print ("No file provided")
         return False
+
+# INPUT: List of PageObjects (PyPDF2)
+# OUTPUT: List of Document objects (Langchain PyPDFLoader)
+def convert_PageObjects_to_Documents(list_of_page_objects):
+    list_of_documents = []
+    for page_object in list_of_page_objects:
+        document = Document(page_content=page_object.extract_text())
+        list_of_documents.append(document)
+    return list_of_documents
+
 
 # INPUT: FileStorage object
 # OUTPUT: base64encoded file

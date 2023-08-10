@@ -5,12 +5,12 @@ import { PageLoader } from "./components/page-loader";
 import { AuthenticationGuard } from "./components/authentication-guard";
 import { AdminPage } from "./pages/admin-page";
 import { CallbackPage } from "./pages/callback-page";
-import { AboutPage } from "./pages/about-page";
+import { HomePage } from "./pages/home-page";
 import { NotFoundPage } from "./pages/not-found-page";
 import { ProfilePage } from "./pages/profile-page";
 import { ProtectedPage } from "./pages/protected-page";
 import { PublicPage } from "./pages/public-page";
-import { HomePage } from "./pages/home-page";
+import { ChatPage } from "./pages/chat-page";
 
 export const App = () => {
   const { isLoading } = useAuth0();
@@ -25,7 +25,7 @@ export const App = () => {
 
   return (
     <Routes>
-      <Route path="/" element={<AboutPage />} />
+      <Route path="/" element={<HomePage />} />
       <Route
         path="/profile"
         element={<AuthenticationGuard component={ProfilePage} />}
@@ -33,7 +33,7 @@ export const App = () => {
       <Route path="/public" element={<PublicPage />} />
       <Route
         path="/chat"
-        element={<AuthenticationGuard component={HomePage} />}
+        element={<AuthenticationGuard component={ChatPage} />}
       />
       <Route
         path="/admin"

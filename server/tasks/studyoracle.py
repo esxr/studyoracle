@@ -30,12 +30,12 @@ def add_doc(filename, file):
         
     
 @celery.task(name="ask")
-def handle_message(user_id, query):
-    if user_id is None:
+def handle_message(user, query):
+    if user is None:
         raise Exception("User not found")
     
     # retrieve user's session object from SQLAlchemy
-    user_session = UserSession.query.get(user_id)
+    user_session = UserSession.query.get(user)
     # get the session_dta object from the session object
     session_data = user_session.session_data
     # run the query

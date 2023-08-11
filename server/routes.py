@@ -133,7 +133,12 @@ def create_user():
 
         # Create a new user object
         user = User(id=id, name=name)
+        
+        # Create a new user session object
+        user_session = UserSession(user=user.id, session_data=PDFQA())
+
         db.session.add(user)
+        db.session.add(user_session)
         db.session.commit()
 
         return jsonify({'user_id': user.id}), 201  # Created

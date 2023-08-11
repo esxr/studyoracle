@@ -77,6 +77,10 @@ resource "aws_ecs_task_definition" "studyoracle" {
       {
         "name": "CELERY_RESULT_BACKEND",
         "value": "db+postgresql://${local.database_username}:${local.database_password}@${aws_db_instance.database.address}:${aws_db_instance.database.port}/${aws_db_instance.database.db_name}"
+      },
+      {
+        "name": "C_FORCE_ROOT",
+        "value": "true"
       }
     ],
     "logConfiguration": {

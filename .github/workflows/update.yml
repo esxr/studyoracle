@@ -16,20 +16,20 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '16'  # Adjust the Node.js version if needed
+          node-version: '16'
 
-      - name: Fetch AWS temporary credentials
-        id: sts
-        uses: aws-actions/configure-aws-credentials@v2
+      - name: Get AWS credentials from Github Secrets
+        uses: aws-actions/configure-aws-credentials@v1
         with:
-            role-to-assume: arn:aws:iam::123456789100:role/my-github-actions-role
-            aws-region: us-east-1
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
 
       - name: Build frontend
-        run: cd frontend && npm ci && npm run build
+        run: cd frontend && npm run build
 
       - name: Copy frontend build to server
-        run: cp -r frontend/dist/ server/frontend/dist/
+        run: cp -r frontend/build/ server/frontend/build/
 
       - name: Install Terraform
         run: |
@@ -47,6 +47,3 @@ jobs:
             -replace=aws_ecs_task_definition.studyoracle_worker \
             -replace=aws_ecs_task_definition.studyoracle_server \
             -replace=aws_route53_record.studyoracle
-
-      - name: Clean up temporary credentials
-        run: aws --version  # This will remove the temporary credentials

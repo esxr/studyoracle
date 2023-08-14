@@ -38,7 +38,7 @@ resource "aws_ecs_task_definition" "studyoracle" {
       },
       {
         "name": "CELERY_BROKER_URL",
-        "value": "sqs://"
+        "value": "redis://${local.redis_address}:${local.redis_port}"
       },
       {
         "name": "CELERY_RESULT_BACKEND",
@@ -72,7 +72,7 @@ resource "aws_ecs_task_definition" "studyoracle" {
       },
       {
         "name": "CELERY_BROKER_URL",
-        "value": "sqs://"
+        "value": "redis://${local.redis_address}:${local.redis_port}"
       },
       {
         "name": "CELERY_RESULT_BACKEND",

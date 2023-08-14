@@ -49,6 +49,8 @@ locals {
   database_password = "VerySecurePassword123XYZ"
   region            = data.aws_region.current.name
   account_id        = data.aws_caller_identity.current.account_id
+  redis_address     = aws_elasticache_cluster.studyoracle_redis.cache_nodes.0.address
+  redis_port        = aws_elasticache_cluster.studyoracle_redis.cache_nodes.0.port
 }
 
 data "aws_iam_role" "lab" {

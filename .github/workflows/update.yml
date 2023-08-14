@@ -43,6 +43,7 @@ jobs:
 
       - name: Apply Terraform changes
         run: |
+          terraform init
           terraform apply -auto-approve \
           -replace=aws_ecs_cluster.studyoracle \
           -replace=aws_ecs_service.studyoracle \

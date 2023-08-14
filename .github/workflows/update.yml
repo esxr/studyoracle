@@ -27,6 +27,7 @@ jobs:
 
       - name: Build frontend
         run: |
+          export CI=false
           cd frontend && npm install
           npm run build
 

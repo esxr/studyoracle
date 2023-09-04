@@ -43,16 +43,16 @@ jobs:
       - name: Apply Terraform changes
         run: |
           terraform init
-          # terraform destroy -auto-approve && terraform apply -auto-approve
-          terraform apply \
-          -auto-approve \
-          -replace=aws_ecr_repository.studyoracle_server \
-          -replace=aws_ecr_repository.studyoracle_worker \
-          -replace=aws_ecs_cluster.studyoracle \
-          -replace=aws_ecs_service.studyoracle \
-          -replace=aws_ecs_task_definition.studyoracle_worker \
-          -replace=aws_ecs_task_definition.studyoracle_server \
-          -replace=aws_route53_record.studyoracle
+          terraform destroy -auto-approve && terraform apply -auto-approve
+          # terraform apply \
+          # -auto-approve \
+          # -replace=aws_ecr_repository.studyoracle_server \
+          # -replace=aws_ecr_repository.studyoracle_worker \
+          # -replace=aws_ecs_cluster.studyoracle \
+          # -replace=aws_ecs_service.studyoracle \
+          # -replace=aws_ecs_task_definition.studyoracle_worker \
+          # -replace=aws_ecs_task_definition.studyoracle_server \
+          # -replace=aws_route53_record.studyoracle
         continue-on-error: true
 
       - name: Apply terraform once more (sometimes AutoScaling fails)

@@ -39,6 +39,7 @@ resource "aws_lb_listener" "studyoracle_server" {
       protocol    = "HTTPS"
       status_code = "HTTP_301"
     }
+  }
 }
 
 # Find the ARN of the certificate issued against the domain (for HTTPS)

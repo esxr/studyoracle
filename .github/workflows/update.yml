@@ -53,6 +53,8 @@ jobs:
           -replace=aws_ecs_task_definition.studyoracle_worker \
           -replace=aws_ecs_task_definition.studyoracle_server \
           -replace=aws_route53_record.studyoracle
+        continue-on-error: true
 
       - name: Apply terraform once more (sometimes AutoScaling fails)
         run: terraform apply -auto-approve
+        continue-on-error: true

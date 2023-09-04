@@ -131,6 +131,17 @@ def create_user():
         name = request.json['name']
         id = request.json.get('id', None)
 
+        # check if the user already exists
+        if User.query.get(id) is not None:
+            # TODO: Remove Hotfix
+            # Hotfix: create a new session for every user login
+            # remove user's session data and create a new one
+            user_session = UserSession.query.get(id)
+            db.session.delete(user_session)
+            db.session.commit()
+
+            return jsonify({'error': 'User already exists'}), 400
+
         # Create a new user object
         user = User(id=id, name=name)
         
@@ -259,5 +270,21 @@ def get_task_result(task_id):
         
         return jsonify({'result': result.get()}), 200
     
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+# ADMIN ROUTES
+# Routes to delete all user sessions
+@api.route('/admin/delete_all_user_sessions', methods=['DELETE'])
+def delete_all_user_sessions():
+    try:
+        user_sessions = UserSession.query.all()
+        for user_session in user_sessions:
+            db.session.delete(user_session)
+        db.session.commit()
+
+        return jsonify({'message': 'All user sessions deleted!'}), 200
+
     except Exception as e:
         return jsonify({'error': str(e)}), 500

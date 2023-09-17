@@ -9,16 +9,16 @@ resource "aws_ecs_task_definition" "studyoracle" {
   family                   = "studyoracle"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  cpu                      = 4096
-  memory                   = 8192
+  cpu                      = 512
+  memory                   = 2048
   execution_role_arn       = data.aws_iam_role.lab.arn
 
   container_definitions = <<DEFINITION
 [
   {
     "image": "${local.server_image}",
-    "cpu": 2048,
-    "memory": 4096,
+    "cpu": 256,
+    "memory": 1024,
     "name": "studyoracle_server",
     "networkMode": "awsvpc",
     "portMappings": [
@@ -57,8 +57,8 @@ resource "aws_ecs_task_definition" "studyoracle" {
   },
   {
     "image": "${local.worker_image}",
-    "cpu": 2048,
-    "memory": 4096,
+    "cpu": 256,
+    "memory": 1024,
     "name": "studyoracle_worker",
     "networkMode": "awsvpc",
     "environment": [

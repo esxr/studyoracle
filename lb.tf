@@ -33,8 +33,12 @@ resource "aws_lb_listener" "studyoracle_server" {
   port              = "80"
   protocol          = "HTTP"
   default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.studyoracle_server.arn
+    type          = "redirect"
+    redirect {
+      port        = "443"
+      protocol    = "HTTPS"
+      status_code = "HTTP_301"
+    }
   }
 }
 

@@ -1,0 +1,27 @@
+{
+  "ignoredFiles": [
+    "tsconfig.json",
+    "node_modules/",
+    ".DS_Store",
+    ".git",
+    ".gitignore",
+    "vendor/",
+    "dist/",
+    "build/",
+    "logs/",
+    "temp/",
+    "tmp/",
+    "coverage/",
+    "config/secrets.yml",
+    "config/master.key",
+    ".env",
+    "package-lock.json",
+    "yarn.lock"
+  ],
+  "ignoredExtensions": [
+    ".md",
+    ".log",
+    ".lock",
+    ".tfstate.*"
+  ]
+}

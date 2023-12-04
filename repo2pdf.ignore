@@ -16,6 +16,8 @@
     "config/master.key",
     ".env",
     "package-lock.json",
+    "Pipfile.lock",
+    "frontend/",
     "yarn.lock"
   ],
   "ignoredExtensions": [
